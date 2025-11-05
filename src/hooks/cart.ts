@@ -33,6 +33,9 @@ export const useCart = ({ enabled }: { enabled: boolean }) => {
       return res
     },
     enabled,
+    staleTime: 30 * 1000, // 30 seconds - short because cart changes frequently
+    gcTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false, // Controlled via refetch() calls in components
   })
 }
 
@@ -43,27 +46,37 @@ export const useCartQuantity = () => {
       const res = await getCartQuantity()
       return res
     },
-
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   })
 }
 
 export const useCartShippingMethods = (cartId: string) => {
   return useQuery({
-    queryKey: [cartId],
+    queryKey: ["shipping", cartId], // More specific key prevents collisions
     queryFn: async () => {
       const res = await listCartShippingMethods(cartId)
       return res
     },
+    enabled: !!cartId, // Only fetch when cartId exists
+    staleTime: 5 * 60 * 1000, // 5 minutes - shipping methods rarely change
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   })
 }
 
 export const useCartPaymentMethods = (regionId: string) => {
   return useQuery({
-    queryKey: [regionId],
+    queryKey: ["payment", regionId], // More specific key prevents collisions
     queryFn: async () => {
       const res = await listCartPaymentMethods(regionId)
       return res
     },
+    enabled: !!regionId, // Only fetch when regionId exists
+    staleTime: 10 * 60 * 1000, // 10 minutes - payment methods rarely change
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -86,9 +99,11 @@ export const useUpdateLineItem = (
       return response
     },
     onSuccess: async function (...args) {
+      // Invalidate all cart queries including cart-quantity for immediate UI update
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart-related queries including cart-quantity
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -110,9 +125,11 @@ export const useDeleteLineItem = (
       return response
     },
     onSuccess: async function (...args) {
+      // Invalidate all cart queries including cart-quantity for immediate UI update
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart-related queries
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -126,7 +143,7 @@ export const useAddLineItem = (
     void,
     Error,
     { variantId: string; quantity: number; countryCode: string | undefined },
-    unknown
+    { previousCart: any; previousQuantity: number | undefined }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -142,10 +159,38 @@ export const useAddLineItem = (
 
       return response
     },
+    // Optimistic update for instant UI feedback
+    onMutate: async (payload) => {
+      // Cancel outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ["cart"] })
+      
+      // Snapshot previous values
+      const previousCart = queryClient.getQueryData(["cart"])
+      const previousQuantity = queryClient.getQueryData<number>(["cart", "cart-quantity"])
+      
+      // Optimistically update cart quantity
+      queryClient.setQueryData<number>(
+        ["cart", "cart-quantity"], 
+        (old = 0) => old + payload.quantity
+      )
+      
+      return { previousCart, previousQuantity }
+    },
+    onError: (err, payload, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart)
+      }
+      if (context?.previousQuantity !== undefined) {
+        queryClient.setQueryData(["cart", "cart-quantity"], context.previousQuantity)
+      }
+    },
     onSuccess: async function (...args) {
+      // Invalidate all cart queries including cart-quantity for immediate UI update
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart-related queries including cart-quantity
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -160,7 +205,7 @@ export const useSetShippingMethod = (
     void,
     Error,
     { shippingMethodId: string },
-    unknown
+    { previousCart: any }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -174,10 +219,38 @@ export const useSetShippingMethod = (
 
       return response
     },
+    // Optimistic update
+    onMutate: async ({ shippingMethodId }) => {
+      await queryClient.cancelQueries({ queryKey: ["cart"] })
+      const previousCart = queryClient.getQueryData(["cart"])
+      
+      // Optimistically update shipping method
+      queryClient.setQueryData(["cart"], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          shipping_methods: [{
+            shipping_option_id: shippingMethodId,
+            // Keep other properties if they exist
+            ...old.shipping_methods?.[0],
+          }],
+        }
+      })
+      
+      return { previousCart }
+    },
+    onError: (err, payload, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart)
+      }
+    },
     onSuccess: async function (...args) {
+      // Refetch active queries immediately to keep checkout in sync
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart queries
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -195,10 +268,10 @@ export const addressesFormSchema = z
       address_1: z.string().min(1),
       address_2: z.string().optional(),
       city: z.string().min(1),
-      postal_code: z.string().min(1),
+      postal_code: z.string().optional(),
       province: z.string().optional(),
       country_code: z.string().min(2),
-      phone: z.string().optional(),
+      phone: z.string().min(1),
     }),
   })
   .and(
@@ -215,10 +288,10 @@ export const addressesFormSchema = z
           address_1: z.string().min(1),
           address_2: z.string().optional(),
           city: z.string().min(1),
-          postal_code: z.string().min(1),
+          postal_code: z.string().optional(),
           province: z.string().optional(),
           country_code: z.string().min(2),
-          phone: z.string().optional(),
+          phone: z.string().min(1),
         }),
       }),
     ])
@@ -229,7 +302,7 @@ export const useSetShippingAddress = (
     { success: boolean; error: string | null },
     Error,
     z.infer<typeof addressesFormSchema>,
-    unknown
+    { previousCart: any }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -240,10 +313,43 @@ export const useSetShippingAddress = (
       const response = await setAddresses(payload)
       return response
     },
+    // Optimistic update
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ["cart"] })
+      const previousCart = queryClient.getQueryData(["cart"])
+      
+      // Optimistically update addresses
+      queryClient.setQueryData(["cart"], (old: any) => 
+        old ? {
+          ...old,
+          shipping_address: payload.shipping_address,
+          billing_address: payload.same_as_billing === "on" 
+            ? payload.shipping_address 
+            : payload.billing_address,
+        } : old
+      )
+      
+      return { previousCart }
+    },
+    onError: (err, payload, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart)
+      }
+    },
     onSuccess: async function (...args) {
+      // Refetch active queries immediately to keep checkout in sync
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart queries
+        refetchType: "active", // Refetch active queries immediately
+      })
+      
+      // Also invalidate shipping methods since address changed
+      await queryClient.invalidateQueries({
+        queryKey: ["shipping"],
+        exact: false,
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -257,7 +363,7 @@ export const useSetEmail = (
     { success: boolean; error: string | null },
     Error,
     { email: string; country_code: string },
-    unknown
+    { previousCart: any }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -268,10 +374,30 @@ export const useSetEmail = (
       const response = await setEmail(payload)
       return response
     },
+    // Optimistic update
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ["cart"] })
+      const previousCart = queryClient.getQueryData(["cart"])
+      
+      // Optimistically update cart email
+      queryClient.setQueryData(["cart"], (old: any) => 
+        old ? { ...old, email: payload.email } : old
+      )
+      
+      return { previousCart }
+    },
+    onError: (err, payload, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart)
+      }
+    },
     onSuccess: async function (...args) {
+      // Refetch active queries immediately to keep checkout in sync
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart queries
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -299,9 +425,11 @@ export const useInitiatePaymentSession = (
       return response
     },
     onSuccess: async function (...args) {
+      // Refetch active queries immediately to keep checkout in sync
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart queries
+        refetchType: "active", // Refetch active queries immediately
       })
 
       await options?.onSuccess?.(...args)
@@ -327,10 +455,22 @@ export const useSetPaymentMethod = (
       return response
     },
     onSuccess: async function (...args) {
+      // Refetch active queries immediately to keep checkout in sync
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // Invalidate all cart queries
+        refetchType: "active", // Refetch active queries immediately
       })
+      
+      // Invalidate payment method query if token exists
+      const variables = args[1]
+      if (variables?.token) {
+        await queryClient.invalidateQueries({
+          queryKey: ["payment"],
+          exact: false,
+          refetchType: "active", // Refetch active queries immediately
+        })
+      }
 
       await options?.onSuccess?.(...args)
     },
@@ -381,9 +521,15 @@ export const usePlaceOrder = (
     },
     ...options,
     onSuccess: async function (...args) {
+      // Place order should invalidate more aggressively since cart becomes order
       await queryClient.invalidateQueries({
-        exact: false,
         queryKey: ["cart"],
+        exact: false, // This one should invalidate all cart queries
+      })
+      
+      await queryClient.invalidateQueries({
+        queryKey: ["orders"],
+        exact: false,
       })
 
       await options?.onSuccess?.(...args)
@@ -403,9 +549,11 @@ export const useApplyPromotions = (
       return response
     },
     onSuccess: async function (...args) {
-      await queryClient.invalidateQueries({
-        exact: false,
+      // Background refetch - doesn't block UI, but keeps data fresh
+      queryClient.invalidateQueries({
         queryKey: ["cart"],
+        exact: true,
+        refetchType: "inactive", // Refetch when components mount, not immediately
       })
 
       await options?.onSuccess?.(...args)

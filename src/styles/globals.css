@@ -5,6 +5,13 @@
 @layer base {
   html {
     @apply text-black font-normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans;
+    letter-spacing: -0.01em;
   }
 
   h1,
@@ -13,7 +20,8 @@
   h4,
   h5,
   h6 {
-    @apply font-medium;
+    @apply font-display;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -139,10 +147,10 @@
   }
 
   .txt-medium {
-    @apply text-[1.875rem] leading-[1.3125rem] font-normal font-inter;
+    @apply text-[1.875rem] leading-[1.3125rem] font-normal font-body;
   }
 
   .txt-xlarge-plus {
-    @apply text-[1.125rem] leading-[1.6875rem] font-medium font-inter;
+    @apply text-[1.125rem] leading-[1.6875rem] font-medium font-body;
   }
 }

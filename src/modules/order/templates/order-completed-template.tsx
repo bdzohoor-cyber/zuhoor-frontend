@@ -6,6 +6,7 @@ import Item from "@modules/order/components/item"
 import { OrderTotals } from "@modules/order/components/OrderTotals"
 import { listOrders } from "@lib/data/orders"
 import { getCustomer } from "@lib/data/customer"
+import { OrderPurchaseTracking } from "@/components/OrderPurchaseTracking"
 
 type OrderCompletedTemplateProps = {
   order: HttpTypes.StoreOrder
@@ -23,7 +24,9 @@ export default async function OrderCompletedTemplate({
   }
 
   return (
-    <Layout className="py-26 md:pt-39 md:pb-36">
+    <>
+      <OrderPurchaseTracking order={order} />
+      <Layout className="py-26 md:pt-39 md:pb-36">
       <LayoutColumn
         start={{ base: 1, lg: 3, xl: 4 }}
         end={{ base: 13, lg: 11, xl: 10 }}
@@ -124,5 +127,6 @@ export default async function OrderCompletedTemplate({
         </div>
       </LayoutColumn>
     </Layout>
+    </>
   )
 }

@@ -2,25 +2,39 @@
 
 import { twJoin } from "tailwind-merge"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
+import { useCart } from "hooks/cart"
+import { withReactQueryProvider } from "@lib/util/react-query"
 
 import { Button } from "@/components/Button"
 import PaymentButton from "@modules/checkout/components/payment-button"
 import { StoreCart } from "@medusajs/types"
 
-const Review = ({ cart }: { cart: StoreCart }) => {
+const Review = ({ cart: initialCart }: { cart: StoreCart }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
 
   const isOpen = searchParams.get("step") === "review"
+  
+  // Fetch fresh cart data when review step opens to ensure payment button appears
+  const { data: cart, refetch } = useCart({ enabled: isOpen })
+  const activeCart = cart || initialCart
+
+  // Refetch when review step opens to ensure we have latest payment_collection
+  useEffect(() => {
+    if (isOpen) {
+      refetch()
+    }
+  }, [isOpen, refetch])
 
   // const paidByGiftcard =
-  //   cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
+  //   activeCart?.gift_cards && activeCart?.gift_cards?.length > 0 && activeCart?.total === 0
   const previousStepsCompleted =
-    cart.shipping_address &&
-    cart.shipping_methods &&
-    cart.shipping_methods.length > 0 &&
-    cart.payment_collection
+    activeCart.shipping_address &&
+    activeCart.shipping_methods &&
+    activeCart.shipping_methods.length > 0 &&
+    activeCart.payment_collection
 
   return (
     <>
@@ -37,9 +51,9 @@ const Review = ({ cart }: { cart: StoreCart }) => {
         </div>
         {!isOpen &&
           previousStepsCompleted &&
-          cart?.shipping_address &&
-          cart?.billing_address &&
-          cart?.email && (
+          activeCart?.shipping_address &&
+          activeCart?.billing_address &&
+          activeCart?.email && (
             <Button
               variant="link"
               onPress={() => {
@@ -55,11 +69,11 @@ const Review = ({ cart }: { cart: StoreCart }) => {
           <p className="mb-8">
             By clicking the Place Order button, you confirm that you have read,
             understand and accept our Terms of Use, Terms of Sale and Returns
-            Policy and acknowledge that you have read Medusa Store&apos;s
+            Policy and acknowledge that you have read Zuhoor&apos;s
             Privacy Policy.
           </p>
           <PaymentButton
-            cart={cart}
+            cart={activeCart}
             selectPaymentMethod={() => {
               router.push(pathname + "?step=payment", { scroll: false })
             }}
@@ -70,4 +84,4 @@ const Review = ({ cart }: { cart: StoreCart }) => {
   )
 }
 
-export default Review
+export default withReactQueryProvider(Review)

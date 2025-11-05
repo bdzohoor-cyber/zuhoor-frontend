@@ -37,6 +37,7 @@ export const SearchField: React.FC<{
 }> = ({ countryOptions, isInputAlwaysShown }) => {
   const router = useRouter()
   const [isInputShown, setIsInputShown] = React.useState(false)
+  const comboBoxRef = React.useRef<HTMLDivElement>(null)
   const countryCode = useCountryCode()
   const region = countryOptions.find((co) => co.country === countryCode)?.region
   const searchParams = useSearchParams()
@@ -76,6 +77,13 @@ export const SearchField: React.FC<{
   const buttonPressHandle = React.useCallback(() => {
     if (!isInputShown) {
       setIsInputShown(true)
+      // Focus the input after a short delay to ensure it's rendered
+      setTimeout(() => {
+        const input = comboBoxRef.current?.querySelector('input') as HTMLInputElement
+        if (input) {
+          input.focus()
+        }
+      }, 50)
     } else if (list.filterText) {
       router.push(`/${countryCode}/search?query=${list.filterText}`)
       if (!isInputAlwaysShown) setIsInputShown(false)
@@ -110,17 +118,31 @@ export const SearchField: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  React.useEffect(() => {
+    if (isInputShown && !isInputAlwaysShown) {
+      // Focus the input when it becomes visible
+      const timer = setTimeout(() => {
+        const input = comboBoxRef.current?.querySelector('input') as HTMLInputElement
+        if (input) {
+          input.focus()
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isInputShown, isInputAlwaysShown])
+
   return (
     <div className="flex">
       <Button
         onPress={buttonPressHandle}
         variant="ghost"
-        className="p-1 max-md:text-white group-data-[light=true]:md:text-white group-data-[sticky=true]:md:text-black"
+        className="p-1"
         aria-label="Open search"
       >
         <Icon name="search" className="w-5 h-5" />
       </Button>
       <ReactAria.ComboBox
+        ref={comboBoxRef}
         allowsCustomValue
         className="overflow-hidden"
         aria-label="Search"
@@ -136,7 +158,14 @@ export const SearchField: React.FC<{
             isInputShown ? "w-full md:w-30" : "md:w-0"
           )}
         >
-          <Input className="px-0 disabled:bg-transparent !py-0 h-7 md:h-6 max-md:border-0 border-black rounded-none border-t-0 border-x-0 group-data-[light=true]:md:border-white group-data-[sticky=true]:md:border-black ml-2 md:ml-1" />
+          <Input 
+            className={twJoin(
+              "px-0 disabled:bg-transparent !py-0 h-7 md:h-6 rounded-none border-t-0 border-x-0 ml-2 md:ml-1",
+              isInputAlwaysShown
+                ? "border-b border-gray-300 focus:border-black transition-colors"
+                : "max-md:border-0 border-black"
+            )} 
+          />
         </div>
         <ReactAria.Popover
           placement="bottom end"

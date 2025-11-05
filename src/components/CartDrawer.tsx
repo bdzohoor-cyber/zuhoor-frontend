@@ -16,18 +16,36 @@ import { withReactQueryProvider } from "@lib/util/react-query"
 export const CartDrawer = withReactQueryProvider(() => {
   const [isCartDrawerOpen, setIsCartDrawerOpen] = React.useState(false)
 
-  const { data: cart, isPending } = useCart({ enabled: isCartDrawerOpen })
+  const { data: cart, isPending, refetch } = useCart({ 
+    enabled: isCartDrawerOpen,
+    refetchOnWindowFocus: true,
+  })
 
   const step = getCheckoutStep(cart as HttpTypes.StoreCart)
 
   const { data: quantity, isPending: pendingQuantity } = useCartQuantity()
+
+  // Refetch cart when drawer opens to ensure fresh data
+  React.useEffect(() => {
+    if (isCartDrawerOpen) {
+      refetch()
+    }
+  }, [isCartDrawerOpen, refetch])
+
+  // Memoize sorted items to avoid sorting on every render
+  const sortedItems = React.useMemo(() => {
+    if (!cart?.items) return []
+    return [...cart.items].sort((a, b) => {
+      return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
+    })
+  }, [cart?.items])
 
   return (
     <>
       <Button
         onPress={() => setIsCartDrawerOpen(true)}
         variant="ghost"
-        className="p-1 group-data-[light=true]:md:text-white group-data-[sticky=true]:md:text-black"
+        className="p-1"
         aria-label="Open cart"
       >
         {pendingQuantity ? (
@@ -60,21 +78,15 @@ export const CartDrawer = withReactQueryProvider(() => {
             {cart?.items?.length ? (
               <>
                 <div className="pb-8 pr-3 sm:pr-4 overflow-y-scroll">
-                  {cart?.items
-                    .sort((a, b) => {
-                      return (a.created_at ?? "") > (b.created_at ?? "")
-                        ? -1
-                        : 1
-                    })
-                    .map((item) => {
-                      return (
-                        <Item
-                          key={item.id}
-                          item={item}
-                          className="py-8 last:pb-0 last:border-b-0"
-                        />
-                      )
-                    })}
+                  {sortedItems.map((item) => {
+                    return (
+                      <Item
+                        key={item.id}
+                        item={item}
+                        className="py-8 last:pb-0 last:border-b-0"
+                      />
+                    )
+                  })}
                 </div>
                 <div className="sticky left-0 bg-white bottom-0 pt-4 border-t border-grayscale-200 mt-auto">
                   <CartTotals isPartOfCartDrawer cart={cart} />

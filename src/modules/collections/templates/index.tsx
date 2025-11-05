@@ -91,30 +91,32 @@ export default async function CollectionTemplate({
         )}
         type={type}
       />
-      <Suspense fallback={<SkeletonProductGrid />}>
-        {region && (
-          <PaginatedProducts
-            sortBy={sortBy}
-            page={pageNumber}
-            collectionId={collection.id}
-            countryCode={countryCode}
-            categoryId={
-              !category
-                ? undefined
-                : categories.product_categories
-                    .filter((c) => category.includes(c.handle))
-                    .map((c) => c.id)
-            }
-            typeId={
-              !type
-                ? undefined
-                : types.productTypes
-                    .filter((t) => type.includes(t.value))
-                    .map((t) => t.id)
-            }
-          />
-        )}
-      </Suspense>
+      <div className="mt-8 md:mt-12">
+        <Suspense fallback={<SkeletonProductGrid />}>
+          {region && (
+            <PaginatedProducts
+              sortBy={sortBy}
+              page={pageNumber}
+              collectionId={collection.id}
+              countryCode={countryCode}
+              categoryId={
+                !category
+                  ? undefined
+                  : categories.product_categories
+                      .filter((c) => category.includes(c.handle))
+                      .map((c) => c.id)
+              }
+              typeId={
+                !type
+                  ? undefined
+                  : types.productTypes
+                      .filter((t) => type.includes(t.value))
+                      .map((t) => t.id)
+              }
+            />
+          )}
+        </Suspense>
+      </div>
       <div className="pb-10 md:pb-20" />
     </>
   )

@@ -12,6 +12,7 @@ import Review from "@modules/checkout/components/review"
 import { useCart } from "hooks/cart"
 import { getCheckoutStep } from "@modules/cart/utils/getCheckoutStep"
 import { Icon } from "@/components/Icon"
+import { trackMetaPixelEvent } from "@/components/MetaPixel"
 
 export const CheckoutForm = withReactQueryProvider<{
   countryCode: string
@@ -26,6 +27,32 @@ export const CheckoutForm = withReactQueryProvider<{
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, countryCode, cart])
+
+  // Track InitiateCheckout event
+  React.useEffect(() => {
+    if (
+      cart &&
+      cart.items &&
+      cart.items.length > 0 &&
+      typeof window !== "undefined" &&
+      window.fbq
+    ) {
+      try {
+        trackMetaPixelEvent("InitiateCheckout", {
+          content_name: "Checkout",
+          content_type: "product",
+          value: cart.total ? cart.total / 100 : 0,
+          currency: cart.currency_code?.toUpperCase() || "USD",
+          num_items: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+        })
+      } catch (error) {
+        // Silently fail
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Meta Pixel tracking error:", error)
+        }
+      }
+    }
+  }, [cart?.id]) // Only track once per cart session
   if (isPending) {
     return (
       <div className="absolute left-0 top-20 md:top-40 lg:top-0 w-[100vw] lg:max-w-[calc(100vw-((50vw-50%)+448px))] xl:max-w-[calc(100vw-((50vw-50%)+540px))] -ml-[calc(50vw-50%)] h-screen lg:w-full flex items-center justify-center">

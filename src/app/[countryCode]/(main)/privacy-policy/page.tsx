@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
         end={{ base: 13, lg: 11, xl: 10 }}
       >
         <h1 className="text-lg md:text-2xl mb-16 md:mb-25">
-          Privacy Policy for Sofa Society
+          Privacy Policy for Zuhoor
         </h1>
       </LayoutColumn>
       <LayoutColumn
@@ -164,7 +164,7 @@ export default function PrivacyPolicyPage() {
           contact us at:
         </p>
         <p>
-          Email: privacy@sofasociety.com
+          Email: privacy@zuhoor.com
           <br />
           Address: Skärgårdsvägen 12, 124 55 Stockholm
         </p>

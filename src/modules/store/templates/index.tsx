@@ -35,13 +35,9 @@ const StoreTemplate = async ({
   ])
 
   return (
-    <div className="md:pt-47 py-26 md:pb-36">
+    <div className="md:pt-47 py-6 md:py-26 md:pb-36">
       {/* <CollectionsSlider /> */}
       <RefinementList
-        collections={Object.fromEntries(
-          collections.collections.map((c) => [c.handle, c.title])
-        )}
-        collection={collection}
         categories={Object.fromEntries(
           categories.product_categories.map((c) => [c.handle, c.name])
         )}
@@ -52,36 +48,38 @@ const StoreTemplate = async ({
         type={type}
         sortBy={sortBy}
       />
-      <Suspense fallback={<SkeletonProductGrid />}>
-        {region && (
-          <PaginatedProducts
-            sortBy={sortBy}
-            page={pageNumber}
-            countryCode={countryCode}
-            collectionId={
-              !collection
-                ? undefined
-                : collections.collections
-                    .filter((c) => collection.includes(c.handle))
-                    .map((c) => c.id)
-            }
-            categoryId={
-              !category
-                ? undefined
-                : categories.product_categories
-                    .filter((c) => category.includes(c.handle))
-                    .map((c) => c.id)
-            }
-            typeId={
-              !type
-                ? undefined
-                : types.productTypes
-                    .filter((t) => type.includes(t.value))
-                    .map((t) => t.id)
-            }
-          />
-        )}
-      </Suspense>
+      <div className="mt-8 md:mt-12">
+        <Suspense fallback={<SkeletonProductGrid />}>
+          {region && (
+            <PaginatedProducts
+              sortBy={sortBy}
+              page={pageNumber}
+              countryCode={countryCode}
+              collectionId={
+                !collection
+                  ? undefined
+                  : collections.collections
+                      .filter((c) => collection.includes(c.handle))
+                      .map((c) => c.id)
+              }
+              categoryId={
+                !category
+                  ? undefined
+                  : categories.product_categories
+                      .filter((c) => category.includes(c.handle))
+                      .map((c) => c.id)
+              }
+              typeId={
+                !type
+                  ? undefined
+                  : types.productTypes
+                      .filter((t) => type.includes(t.value))
+                      .map((t) => t.id)
+              }
+            />
+          )}
+        </Suspense>
+      </div>
     </div>
   )
 }

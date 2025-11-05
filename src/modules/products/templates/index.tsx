@@ -9,6 +9,7 @@ import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
 import { Layout, LayoutColumn } from "@/components/Layout"
+import { ProductViewTracking } from "@/components/ProductViewTracking"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -46,10 +47,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   // )
 
   return (
-    <div
-      className="pt-18 md:pt-26 lg:pt-37 pb-26 md:pb-36"
-      data-testid="product-container"
-    >
+    <>
+      <ProductViewTracking product={product} />
+      <div
+        className="pt-18 md:pt-26 lg:pt-37 pb-16 md:pb-24"
+        data-testid="product-container"
+      >
       <ImageGallery className="md:hidden" images={images} />
       <Layout>
         <LayoutColumn className="mb-26 md:mb-52">
@@ -170,6 +173,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         <RelatedProducts product={product} countryCode={countryCode} />
       </Suspense>
     </div>
+    </>
   )
 }
 

@@ -6,6 +6,7 @@ import { useCallback } from "react"
 import { Layout, LayoutColumn } from "@/components/Layout"
 import { CategoryFilter } from "@modules/store/components/refinement-list/category-filter"
 import { CollectionFilter } from "@modules/store/components/refinement-list/collection-filter"
+import { FilterChips } from "@modules/store/components/refinement-list/filter-chips"
 import { MobileFilters } from "@modules/store/components/refinement-list/mobile-filters"
 import { MobileSort } from "@modules/store/components/refinement-list/mobile-sort"
 import SortProducts, {
@@ -74,12 +75,63 @@ const RefinementList = ({
     [searchParams, pathname, router]
   )
 
+  const removeFilter = useCallback(
+    (filterType: "collection" | "category" | "type", value: string) => {
+      const query = new URLSearchParams(searchParams)
+
+      const currentValues =
+        filterType === "collection"
+          ? collection ?? []
+          : filterType === "category"
+            ? category ?? []
+            : type ?? []
+
+      const newValues = currentValues.filter((v) => v !== value)
+
+      if (newValues.length === 0) {
+        query.delete(filterType)
+      } else {
+        query.delete(filterType)
+        newValues.forEach((v) => query.append(filterType, v))
+      }
+
+      // If we're on a category page and removing the category filter,
+      // navigate to the store page instead of staying on the category page
+      const isCategoryPage = pathname.includes("/category/")
+      if (isCategoryPage && filterType === "category" && newValues.length === 0) {
+        // Extract country code from pathname (e.g., /us/category/men -> us)
+        const pathParts = pathname.replace(/^\//, "").split("/")
+        const countryCode = pathParts[0]
+        
+        // Build store URL with remaining query params (collection, type, etc.)
+        const storePath = `/${countryCode}/store`
+        const queryString = query.toString()
+        const finalUrl = queryString ? `${storePath}?${queryString}` : storePath
+        
+        router.push(finalUrl, { scroll: false })
+        return
+      }
+
+      router.push(`${pathname}?${query.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams, collection, category, type]
+  )
+
   return (
     <Layout className="mb-6 md:mb-8">
       <LayoutColumn>
         <h2 className="text-md md:text-2xl mb-6 md:mb-7" id="products">
           {title}
         </h2>
+        <FilterChips
+          collections={collections}
+          collection={collection}
+          categories={categories}
+          category={category}
+          types={types}
+          type={type}
+          onRemove={removeFilter}
+        />
         <div className="flex justify-between gap-10">
           <MobileFilters
             collections={collections}

@@ -37,5 +37,8 @@ export const useStoreProducts = ({
         Math.ceil(lastPage.nextPage / (lastPage.queryParams?.limit || 12)) + 1
       )
     },
+    staleTime: 60 * 1000, // 1 minute - products don't change frequently
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
   })
 }

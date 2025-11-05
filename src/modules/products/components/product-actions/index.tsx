@@ -20,6 +20,7 @@ import { UiRadioGroup } from "@/components/ui/Radio"
 import { withReactQueryProvider } from "@lib/util/react-query"
 import { useAddLineItem } from "hooks/cart"
 import { getVariantItemsInStock } from '@lib/util/product-stock'
+import { trackMetaPixelEvent } from "@/components/MetaPixel"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -80,7 +81,7 @@ function ProductActions({ product, materials, disabled }: ProductActionsProps) {
   const [quantity, setQuantity] = useState(1)
   const { toast } = useToast()
   const countryCode = useCountryCode()
-  const { mutateAsync, isPending } = useAddLineItem()
+  const { mutate, isPending } = useAddLineItem()
 
   // If there is only 1 variant, preselect the options
   useEffect(() => {
@@ -121,29 +122,55 @@ function ProductActions({ product, materials, disabled }: ProductActionsProps) {
     : false
 
   // add the selected variant to the cart
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!selectedVariant?.id || !canAddToCart) return null
     
-    try {
-      await mutateAsync({
+    // Use mutate instead of mutateAsync - non-blocking for better performance
+    mutate(
+      {
         variantId: selectedVariant.id,
         quantity,
         countryCode,
-      })
-
+      },
+      {
+        onSuccess: () => {
       // Show success toast
       toast({
         title: "Added to Cart",
         description: `${quantity} ${quantity === 1 ? 'item' : 'items'} added to your cart`,
       })
-    } catch (error) {
+      
+      // Track Meta Pixel AddToCart event
+      if (selectedVariant && product && typeof window !== "undefined" && window.fbq) {
+        try {
+          trackMetaPixelEvent("AddToCart", {
+            content_name: product.title || "Product",
+            content_ids: [product.id],
+            content_type: "product",
+            value: selectedVariant.calculated_price?.calculated_amount
+              ? selectedVariant.calculated_price.calculated_amount / 100
+              : 0,
+            currency: selectedVariant.calculated_price?.currency_code?.toUpperCase() || "USD",
+            num_items: quantity,
+          })
+        } catch (error) {
+          // Silently fail - don't break the app if pixel tracking fails
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Meta Pixel tracking error:", error)
+          }
+        }
+      }
+        },
+        onError: (error) => {
       // Show error toast
       toast({
         title: "Error",
         description: "There was an error adding the item to your cart",
       })
       console.log(error)
+        },
     }
+    )
   }
 
   const hasMultipleVariants = (product.variants?.length ?? 0) > 1

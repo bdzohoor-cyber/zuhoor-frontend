@@ -24,10 +24,10 @@ const addressesFormSchema = z
       address_1: z.string().min(1),
       address_2: z.string().optional(),
       city: z.string().min(1),
-      postal_code: z.string().min(1),
+      postal_code: z.string().optional(),
       province: z.string().optional(),
       country_code: z.string().min(2),
-      phone: z.string().optional(),
+      phone: z.string().min(1),
     }),
   })
   .and(
@@ -44,10 +44,10 @@ const addressesFormSchema = z
           address_1: z.string().min(1),
           address_2: z.string().optional(),
           city: z.string().min(1),
-          postal_code: z.string().min(1),
+          postal_code: z.string().optional(),
           province: z.string().optional(),
           country_code: z.string().min(2),
-          phone: z.string().optional(),
+          phone: z.string().min(1),
         }),
       }),
     ])

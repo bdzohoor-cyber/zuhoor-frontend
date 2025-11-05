@@ -7,7 +7,8 @@ import { Layout, LayoutColumn } from "@/components/Layout"
 import { LocalizedLink } from "@/components/LocalizedLink"
 import { HeaderDrawer } from "@/components/HeaderDrawer"
 import { HeaderWrapper } from "@/components/HeaderWrapper"
-import NavMenu from "@/components/NavMenu"
+import { MegaMenu } from "@/components/navigation/MegaMenu"
+import { buildCategoryTree } from "@lib/util/category-paths"
 import dynamic from "next/dynamic"
 
 const LoginLink = dynamic(
@@ -24,19 +25,8 @@ export const Header: React.FC = async () => {
   const regions = await listRegions()
   const categoriesFlat = await listCategories()
 
-  // Build a nested tree of categories based on parent_category_id
-  const map = new Map<string, HttpTypes.StoreProductCategory & { children: HttpTypes.StoreProductCategory[] }>()
-  categoriesFlat.forEach((c) => map.set(c.id, { ...c, children: [] }))
-  const roots: (HttpTypes.StoreProductCategory & { children: HttpTypes.StoreProductCategory[] })[] = []
-  map.forEach((c) => {
-    if (c.parent_category_id) {
-      const parent = map.get(c.parent_category_id)
-      if (parent) parent.children.push(c)
-      else roots.push(c)
-    } else {
-      roots.push(c)
-    }
-  })
+  // Build a nested tree of categories using utility function
+  const categoryTree = buildCategoryTree(categoriesFlat)
 
   const countryOptions = regions
     .map((r) => {
@@ -54,12 +44,12 @@ export const Header: React.FC = async () => {
       <HeaderWrapper>
         <Layout>
           <LayoutColumn>
-            <div className="flex justify-between items-center h-18 md:h-21">
-              <h1 className="font-medium text-md">
-                <LocalizedLink href="/">Zuhoor Lifestyle</LocalizedLink>
+            <div className="flex justify-between items-center h-18 md:h-22">
+              <h1 className="font-display font-normal text-lg tracking-tight">
+                <LocalizedLink href="/" className="hover:opacity-70 transition-opacity duration-200">Zuhoor</LocalizedLink>
               </h1>
               <div className="max-md:hidden">
-                <NavMenu categories={roots} />
+                <MegaMenu categories={categoryTree} allCategories={categoriesFlat} />
               </div>
               <div className="flex items-center gap-3 lg:gap-6 max-md:hidden">
                 {/* <RegionSwitcher
@@ -71,16 +61,17 @@ export const Header: React.FC = async () => {
                 <React.Suspense>
                   <SearchField countryOptions={countryOptions} />
                 </React.Suspense>
-                <LoginLink className="p-1 group-data-[light=true]:md:text-white group-data-[sticky=true]:md:text-black" />
+                <LoginLink className="p-1" />
                 <CartDrawer />
               </div>
               <div className="flex items-center gap-4 md:hidden">
-                <LoginLink className="p-1 group-data-[light=true]:md:text-white" />
+                <LoginLink className="p-1" />
                 <CartDrawer />
                 <React.Suspense>
                   <HeaderDrawer
                     countryOptions={countryOptions}
-                    categories={roots}
+                    categories={categoryTree}
+                    allCategories={categoriesFlat}
                   />
                 </React.Suspense>
               </div>

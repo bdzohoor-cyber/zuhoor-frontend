@@ -1,21 +1,21 @@
 import { Metadata } from "next"
-import Image from "next/image"
 import { getRegion } from "@lib/data/regions"
 import { getProductTypesList } from "@lib/data/product-types"
 import { Layout, LayoutColumn } from "@/components/Layout"
-import { LocalizedLink } from "@/components/LocalizedLink"
 import { CollectionsSection } from "@/components/CollectionsSection"
+import { getCollectionsList } from "@lib/data/collections"
 import HeroCarousel from "@/components/hero-carousel"
-import { listCategories } from "@lib/data/categories"
 import { FeaturedProductSection } from "@/components/FeaturedProductSection"
+import ProductTypesGrid from "@/components/ProductTypesGrid"
 
 export const metadata: Metadata = {
   title: "Zuhoor Lifestyle",
-  description:
-    "A performant frontend ecommerce starter template with Next.js 14 and Medusa.",
+  description: "A modern clothing brand that offers a wide range of products for men and women.",
 }
 
-const ProductTypesSection: React.FC = async () => {
+export const revalidate = 60 // Revalidate every 60 seconds
+
+const ProductTypesSection: React.FC<{ className?: string }> = async ({ className }) => {
   const productTypes = await getProductTypesList(0, 20, [
     "id",
     "value",
@@ -27,61 +27,28 @@ const ProductTypesSection: React.FC = async () => {
   }
 
   return (
-    <Layout>
-      <LayoutColumn className="col-span-full mb-6 md:mb-10">
-        <h3 className="text-lg md:text-3xl font-semibold tracking-tight px-4 md:px-0">Our Products</h3>
+    <Layout className={className}>
+      <LayoutColumn className="col-span-full mb-10 md:mb-16">
+        <h3 className="text-xl md:text-3xl font-display font-normal tracking-tight px-4 md:px-0 text-center">
+          Our Products
+        </h3>
       </LayoutColumn>
       
       {/* Mobile Layout */}
-      <div className="col-span-full md:hidden">
-        {productTypes.productTypes.map((productType) => (
-          <div key={productType.id} className="mb-6 px-4">
-            <LocalizedLink href={`/store?type=${productType.value}`} className="group block">
-              {typeof productType.metadata?.image === "object" &&
-                productType.metadata.image &&
-                "url" in productType.metadata.image &&
-                typeof productType.metadata.image.url === "string" && (
-                  <div className="relative mb-3 overflow-hidden aspect-[4/3]">
-                    <Image
-                      src={productType.metadata.image.url}
-                      fill
-                      alt={productType.value}
-                      className="object-cover transition-transform duration-500 group-hover:scale-102"
-                    />
-                  </div>
-                )}
-              <p className="text-sm font-semibold group-hover:text-gray-700 transition-colors">{productType.value}</p>
-            </LocalizedLink>
-          </div>
-        ))}
-      </div>
+      <LayoutColumn className="col-span-full md:hidden">
+        <ProductTypesGrid
+          productTypes={productTypes.productTypes}
+          isMobile={true}
+        />
+      </LayoutColumn>
 
       {/* Desktop Layout */}
-      {productTypes.productTypes.map((productType, index) => (
-        <LayoutColumn
-          key={productType.id}
-          start={index % 2 === 0 ? 1 : 7}
-          end={index % 2 === 0 ? 7 : 13}
-          className="mb-10 max-md:hidden"
-        >
-          <LocalizedLink href={`/store?type=${productType.value}`} className="group block">
-            {typeof productType.metadata?.image === "object" &&
-              productType.metadata.image &&
-              "url" in productType.metadata.image &&
-              typeof productType.metadata.image.url === "string" && (
-                <div className="relative mb-4 overflow-hidden aspect-[16/10]">
-                  <Image
-                    src={productType.metadata.image.url}
-                    fill
-                    alt={productType.value}
-                    className="object-cover transition-transform duration-500 group-hover:scale-102"
-                  />
-                </div>
-              )}
-            <p className="text-lg font-semibold group-hover:text-gray-700 transition-colors">{productType.value}</p>
-          </LocalizedLink>
-        </LayoutColumn>
-      ))}
+      <LayoutColumn className="col-span-full max-md:hidden">
+        <ProductTypesGrid
+          productTypes={productTypes.productTypes}
+          isMobile={false}
+        />
+      </LayoutColumn>
     </Layout>
   )
 }
@@ -97,13 +64,17 @@ export default async function Home({
   if (!region) {
     return null
   }
-  const categories = await listCategories()
-  console.log(categories)
   
+  const collections = await getCollectionsList(0, 20, [
+    "id",
+    "title",
+    "handle",
+    "metadata",
+  ])
 
   return (
     <>
-      <div className="relative h-[50vh] min-h-[500px] overflow-hidden">
+      <div className="relative h-[60vh] md:h-[75vh] min-h-[500px] md:min-h-[700px] overflow-hidden bg-white">
         {/* <Image
           src="/images/content/living-room-gray-armchair-two-seater-sofa.png"
           width={2880}
@@ -113,18 +84,24 @@ export default async function Home({
         /> */}
         <HeroCarousel/>
       </div>
-      <div className="pt-6 pb-16 md:pt-6 md:pb-16">
-        <ProductTypesSection />
-        <CollectionsSection className="mt-12 md:mt-20" />
-        <FeaturedProductSection
-          className="mt-12 md:mt-20"
+      <div className="pt-8 pb-20 md:pt-12 md:pb-24">
+      <FeaturedProductSection
+          className="mt-16 md:mt-24"
           countryCode={countryCode}
         />
+        {collections && collections.collections && (
+          <CollectionsSection 
+            collections={collections.collections}
+            className="mt-20 md:mt-28" 
+          />
+        )}
+        
+        <ProductTypesSection className="mt-20 md:mt-28" />
         
         {/* <Layout>
           <LayoutColumn className="col-span-full">
             <h3 className="text-md md:text-2xl mb-8 md:mb-16">
-              About Sofa Society
+              About Zuhoor
             </h3>
             <Image
               src="/images/content/gray-sofa-against-concrete-wall.png"
@@ -136,8 +113,8 @@ export default async function Home({
           </LayoutColumn>
           <LayoutColumn start={1} end={{ base: 13, md: 7 }}>
             <h2 className="text-md md:text-2xl">
-              At Sofa Society, we believe that a sofa is the heart of every
-              home.
+              At Zuhoor, we believe that style is the essence of every
+              confident individual.
             </h2>
           </LayoutColumn>
           <LayoutColumn
@@ -148,14 +125,14 @@ export default async function Home({
             <div className="md:text-md">
               <p className="mb-5 md:mb-9">
                 We are dedicated to delivering high-quality, thoughtfully
-                designed sofas that merge comfort and style effortlessly.
+                designed clothing that merges comfort and style effortlessly.
               </p>
               <p className="mb-5 md:mb-3">
-                Our mission is to transform your living space into a sanctuary
-                of relaxation and beauty, with products built to last.
+                Our mission is to help you build a wardrobe that reflects your
+                unique personality and confidence, with pieces built to last.
               </p>
               <LocalizedLink href="/about" variant="underline">
-                Read more about Sofa Society
+                Read more about Zuhoor
               </LocalizedLink>
             </div>
           </LayoutColumn>

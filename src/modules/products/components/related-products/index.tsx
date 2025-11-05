@@ -50,15 +50,26 @@ export default async function RelatedProducts({
   return (
     <>
       <Layout>
-        <LayoutColumn className="mt-26 md:mt-36">
-          <h4 className="text-md md:text-2xl mb-8 md:mb-16">
+        <LayoutColumn className="mt-12 md:mt-20">
+          <h4 className="text-md md:text-2xl mb-8 md:mb-12">
             Related products
           </h4>
         </LayoutColumn>
       </Layout>
-      <Layout className="gap-y-10 md:gap-y-16">
+      
+      {/* Mobile: Single column for better UX */}
+      <div className="md:hidden px-4">
+        <div className="grid grid-cols-1 gap-6">
+          {products.map((product) => (
+            <Product key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: 3 columns */}
+      <Layout className="gap-y-10 md:gap-y-16 max-md:hidden">
         {products.map((product) => (
-          <LayoutColumn key={product.id} className="!col-span-6 md:!col-span-4">
+          <LayoutColumn key={product.id} className="!col-span-4">
             <Product product={product} />
           </LayoutColumn>
         ))}

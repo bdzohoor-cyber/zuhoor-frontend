@@ -10,6 +10,7 @@ import { LocalizedLink } from "@/components/LocalizedLink"
 import { twMerge } from "tailwind-merge"
 import { useUpdateLineItem } from "hooks/cart"
 import { withReactQueryProvider } from "@lib/util/react-query"
+import { Icon } from "@/components/Icon"
 import * as React from "react"
 
 type ItemProps = {
@@ -24,16 +25,24 @@ const Item = ({ item, className }: ItemProps) => {
 
   const [quantity, setQuantity] = React.useState(item.quantity)
 
+  // Sync local state when item quantity changes from server (after successful update)
   React.useEffect(() => {
+    if (!isPending && item.quantity !== quantity) {
+      setQuantity(item.quantity)
+    }
+  }, [item.quantity, isPending]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Trigger mutation when user changes quantity
+  React.useEffect(() => {
+    // Only mutate if quantity was changed by user (not by server sync)
+    if (quantity === item.quantity) return
+
     const handler = setTimeout(() => {
-      if (quantity !== item.quantity) {
-        mutateAsync({ lineId: item.id, quantity })
-      }
+      mutateAsync({ lineId: item.id, quantity })
     }, 500)
 
     return () => clearTimeout(handler)
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, item])
+  }, [quantity, item.id, mutateAsync]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div
@@ -63,16 +72,25 @@ const Item = ({ item, className }: ItemProps) => {
             </p>
             <LineItemUnitPrice item={item} className="sm:hidden" />
           </div>
-          <NumberField
-            size="sm"
-            minValue={1}
-            maxValue={maxQuantity}
-            value={quantity}
-            onChange={setQuantity}
-            isDisabled={isPending}
-            className="w-25"
-            aria-label="Quantity"
-          />
+          <div className="flex items-center gap-2">
+            <NumberField
+              size="sm"
+              minValue={1}
+              maxValue={maxQuantity}
+              value={quantity}
+              onChange={setQuantity}
+              isDisabled={isPending}
+              className="w-25"
+              aria-label="Quantity"
+            />
+            {isPending && (
+              <Icon
+                name="loader"
+                className="w-4 h-4 animate-spin text-grayscale-400"
+                aria-label="Updating quantity"
+              />
+            )}
+          </div>
         </div>
         <div className="flex flex-col justify-between items-end text-right">
           <LineItemUnitPrice item={item} className="max-sm:hidden" />

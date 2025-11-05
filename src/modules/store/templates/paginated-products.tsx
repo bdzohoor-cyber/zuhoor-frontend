@@ -84,22 +84,41 @@ function PaginatedProducts({
 
   return (
     <>
-      <Layout className="gap-y-10 md:gap-y-16 mb-16">
+      <Layout className="mb-16">
         {productsQuery?.data?.pages[0]?.response?.products?.length &&
         (!productsIds || productsIds.length > 0) ? (
-          productsQuery?.data?.pages.flatMap((page) => {
-            return page?.response?.products.map((p: StoreProduct) => {
-              return (
-                <LayoutColumn key={p.id} className="md:!col-span-4 !col-span-6">
-                  <ProductPreview product={p} />
-                </LayoutColumn>
-              )
-            })
-          })
+          <>
+            {/* Mobile: Single column for better UX */}
+            <div className="col-span-full md:hidden px-4">
+              <div className="grid grid-cols-1 gap-6">
+                {productsQuery?.data?.pages.flatMap((page) => {
+                  return page?.response?.products.map((p: StoreProduct) => {
+                    return (
+                      <ProductPreview key={`mobile-${p.id}`} product={p} />
+                    )
+                  })
+                })}
+              </div>
+            </div>
+
+            {/* Desktop: 3 columns */}
+            {productsQuery?.data?.pages.flatMap((page) => {
+              return page?.response?.products.map((p: StoreProduct) => {
+                return (
+                  <LayoutColumn
+                    key={`desktop-${p.id}`}
+                    className="!col-span-4 max-md:hidden mb-8"
+                  >
+                    <ProductPreview product={p} />
+                  </LayoutColumn>
+                )
+              })
+            })}
+          </>
         ) : (
           <NoResults />
         )}
-        {productsQuery.hasNextPage && <div ref={loadMoreRef} />}
+        {productsQuery.hasNextPage && <div ref={loadMoreRef} className="col-span-full h-20" />}
       </Layout>
     </>
   )

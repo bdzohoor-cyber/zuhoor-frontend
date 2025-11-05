@@ -26,16 +26,16 @@ export async function retrieveCart() {
   }
   const cart = await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${cartId}`, {
-      next: { tags: ["cart"] },
+      next: { tags: ["cart"], revalidate: 0 },
       headers: { ...(await getAuthHeaders()) },
-      cache: "no-store",
     })
     .then(({ cart }) => cart)
     .catch(() => {
       return null
     })
 
-  if (cart?.items && cart.items.length && cart.region_id) {
+  // Only enrich if cart has items and region - skip if cart is empty or being updated
+  if (cart?.items && cart.items.length > 0 && cart.region_id) {
     cart.items = await enrichLineItems(cart.items, cart.region_id)
   }
 
@@ -131,6 +131,29 @@ export async function addToCart({
     throw new Error("Missing country code when adding to cart")
   }
 
+  // Optimize: Check if cartId exists first, avoid full cart fetch if possible
+  const cartId = await getCartId()
+  
+  if (cartId) {
+    // Cart exists, add directly without fetching full cart first
+    await sdk.store.cart
+      .createLineItem(
+        cartId,
+        {
+          variant_id: variantId,
+          quantity,
+        },
+        {},
+        await getAuthHeaders()
+      )
+      .then(() => {
+        revalidateTag("cart")
+      })
+      .catch(medusaError)
+    return
+  }
+
+  // No cartId exists, need to get or create cart
   const cart = await getOrSetCart(countryCode)
   if (!cart) {
     throw new Error("Error retrieving or creating cart")
@@ -200,7 +223,6 @@ export async function deleteLineItem(lineId: unknown) {
       revalidateTag("cart")
     })
     .catch(medusaError)
-  revalidateTag("cart")
 }
 
 export async function setShippingMethod({
@@ -303,15 +325,11 @@ export async function setEmail({
   email: string
   country_code: string
 }) {
-  try {
     const cartId = await getCartId()
     if (!cartId) {
-      throw new Error("No existing cart found when setting addresses")
-    }
-  } catch (e) {
     return {
       success: false,
-      error: e instanceof Error ? e.message : "Could not get your cart",
+      error: "No existing cart found when setting email",
     }
   }
 
