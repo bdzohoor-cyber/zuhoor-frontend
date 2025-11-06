@@ -22,11 +22,11 @@ export default function CheckoutLayout({
       <Layout className="lg:hidden">
         <LayoutColumn>
           <div className="flex justify-between items-center h-18">
-            <LocalizedLink href="/" className="text-md font-medium">
-              Zuhoor Lifestyle
+            <LocalizedLink href="/" className="text-md font-display font-normal">
+              Zuhoor
             </LocalizedLink>
             <div>
-              <p className="font-semibold">Checkout</p>
+              <p className="font-display font-semibold">Checkout</p>
             </div>
           </div>
         </LayoutColumn>
@@ -43,7 +43,7 @@ export default function CheckoutLayout({
           <div className="flex-1 pt-8 lg:max-w-125 xl:max-w-150 pb-9 lg:pb-40">
             <LocalizedLink
               href="/"
-              className="text-md font-medium mb-16 inline-block max-lg:hidden"
+              className="text-md font-display font-normal mb-16 inline-block max-lg:hidden"
             >
               Zuhoor Lifestyle
             </LocalizedLink>
