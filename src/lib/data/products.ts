@@ -18,8 +18,7 @@ export const getProductsById = async function ({
         region_id: regionId,
         fields: "*variants.calculated_price,+variants.inventory_quantity",
       },
-      next: { tags: ["products"] },
-      cache: "force-cache",
+      next: { tags: ["products"], revalidate: 60 }, // Revalidate every 60 seconds
     })
     .then(({ products }) => products)
 }
@@ -53,8 +52,7 @@ export const getProductFashionDataByHandle = async function (handle: string) {
     }[]
   }>(`/store/custom/fashion/${handle}`, {
     method: "GET",
-    next: { tags: ["products"] },
-    cache: "force-cache",
+    next: { tags: ["products"], revalidate: 60 }, // Revalidate every 60 seconds
   })
 }
 
@@ -93,8 +91,7 @@ export const getProductsList = async function ({
           fields: "*variants.calculated_price",
           ...queryParams,
         },
-        next: { tags: ["products"] },
-        cache: "force-cache",
+        next: { tags: ["products"], revalidate: 60 }, // Revalidate every 60 seconds
       }
     )
     .then(({ products, count }) => {

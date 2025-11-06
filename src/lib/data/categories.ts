@@ -7,7 +7,7 @@ export const listCategories = async function () {
       "/store/product-categories",
       {
         query: { fields: "+category_children,+parent_category_id" },
-        next: { tags: ["categories"], revalidate: 3600 }, // Revalidate every hour
+        next: { tags: ["categories"], revalidate: 60 }, // Revalidate every 60 seconds
       }
     )
     .then(({ product_categories }) => product_categories)
@@ -19,7 +19,7 @@ export const listParentCategories = async function () {
       "/store/product-categories",
       {
         query: { fields: "+category_children,parent_category_id,name" }, // include parent_category_id
-        next: { tags: ["categories"], revalidate: 3600 }, // Revalidate every hour
+        next: { tags: ["categories"], revalidate: 60 }, // Revalidate every 60 seconds
       }
     )
     .then(({ product_categories }) =>
@@ -41,7 +41,7 @@ export const getCategoriesList = async function (
       offset,
       fields: fields ? fields.join(",") : undefined,
     },
-    next: { tags: ["categories"], revalidate: 3600 }, // Revalidate every hour
+    next: { tags: ["categories"], revalidate: 60 }, // Revalidate every 60 seconds
   })
 }
 
@@ -50,7 +50,7 @@ export const getCategoryByHandle = async function (categoryHandle: string[]) {
     `/store/product-categories`,
     {
       query: { handle: categoryHandle },
-      next: { tags: ["categories"], revalidate: 3600 }, // Revalidate every hour
+      next: { tags: ["categories"], revalidate: 60 }, // Revalidate every 60 seconds
     }
   )
 }
