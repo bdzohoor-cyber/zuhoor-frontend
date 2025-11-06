@@ -34,7 +34,7 @@ export const getProductByHandle = async function (
         region_id: regionId,
         fields: "*variants.calculated_price,+variants.inventory_quantity",
       },
-      next: { tags: ["products"] },
+      next: { tags: ["products"] ,revalidate: 60},
     })
     .then(({ products }) => products[0])
 }
