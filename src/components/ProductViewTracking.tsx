@@ -10,7 +10,7 @@ type ProductViewTrackingProps = {
 
 export function ProductViewTracking({ product }: ProductViewTrackingProps) {
   useEffect(() => {
-    if (!product || typeof window === "undefined" || !window.fbq) {
+    if (!product || typeof window === "undefined" || typeof window.fbq !== "function") {
       return
     }
 
@@ -30,7 +30,7 @@ export function ProductViewTracking({ product }: ProductViewTrackingProps) {
         console.warn("Meta Pixel tracking error:", error)
       }
     }
-  }, [product.id]) // Only track once per product ID
+  }, [product]) // Include product in dependencies
 
   return null // This component doesn't render anything
 }

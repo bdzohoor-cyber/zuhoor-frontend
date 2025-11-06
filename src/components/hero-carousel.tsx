@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useCallback } from "react"
 import useEmblaCarousel from "embla-carousel-react"
-import type { EmblaCarouselType } from 'embla-carousel'
 import Autoplay from "embla-carousel-autoplay"
 import Image from "next/image"
 
@@ -34,14 +33,14 @@ const HeroCarousel = () => {
     })
   ])
 
-  const onSelect = useCallback((api: EmblaCarouselType) => {
+  const onSelect = useCallback(() => {
     // Carousel updates automatically
   }, [])
 
   useEffect(() => {
     if (!emblaApi) return
-    emblaApi.on("select", () => onSelect(emblaApi))
-    emblaApi.on("reInit", () => onSelect(emblaApi))
+    emblaApi.on("select", () => onSelect())
+    emblaApi.on("reInit", () => onSelect())
   }, [emblaApi, onSelect])
 
   return (

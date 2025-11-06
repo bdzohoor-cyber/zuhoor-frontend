@@ -70,7 +70,7 @@ export function findCategoryByPath(
   )
 
   let current: HttpTypes.StoreProductCategory | undefined
-  let remainingHandles = [...handles]
+  const remainingHandles = [...handles]
 
   // Find root category
   const rootHandle = remainingHandles.shift()

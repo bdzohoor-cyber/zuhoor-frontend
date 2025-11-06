@@ -1,7 +1,6 @@
 import * as React from "react"
 import { listRegions } from "@lib/data/regions"
 import { listCategories } from "@lib/data/categories"
-import { HttpTypes } from "@medusajs/types"
 import { SearchField } from "@/components/SearchField"
 import { Layout, LayoutColumn } from "@/components/Layout"
 import { LocalizedLink } from "@/components/LocalizedLink"

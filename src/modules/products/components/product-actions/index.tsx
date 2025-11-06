@@ -141,7 +141,7 @@ function ProductActions({ product, materials, disabled }: ProductActionsProps) {
       })
       
       // Track Meta Pixel AddToCart event
-      if (selectedVariant && product && typeof window !== "undefined" && window.fbq) {
+      if (selectedVariant && product && typeof window !== "undefined" && typeof window.fbq === "function") {
         try {
           trackMetaPixelEvent("AddToCart", {
             content_name: product.title || "Product",

@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getCategoryByPath, listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
-import { buildCategoryTree, findCategoryByPath } from "@lib/util/category-paths"
+import { findCategoryByPath } from "@lib/util/category-paths"
 import StoreTemplate from "@modules/store/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
@@ -20,7 +20,7 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, countryCode } = await params
+  const { slug } = await params
 
   const category = await getCategoryByPath(slug)
 

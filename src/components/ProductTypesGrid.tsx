@@ -87,7 +87,7 @@ export default function ProductTypesGrid({
         initial="hidden"
         animate="visible"
       >
-        {productTypes.map((productType, index) => (
+        {productTypes.map((productType) => (
           <motion.div
             key={productType.id}
             variants={itemVariants}

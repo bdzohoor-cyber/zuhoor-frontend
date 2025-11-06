@@ -1,7 +1,8 @@
 "use client"
 
 import Script from "next/script"
-import { usePathname, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 
 declare global {
@@ -9,7 +10,7 @@ declare global {
     fbq: (
       command: "init" | "track" | "trackSingle" | "trackCustom",
       eventName: string,
-      data?: Record<string, any>
+      data?: Record<string, unknown>
     ) => void
   }
 }
@@ -20,21 +21,20 @@ type MetaPixelProps = {
 
 export function MetaPixel({ pixelId }: MetaPixelProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const previousPathname = useRef<string>()
+  const previousPathname = useRef<string | undefined>(undefined)
 
   // Track page views on route changes (as per official docs - PageView should fire on navigation)
   useEffect(() => {
     // Only track if pathname actually changed (avoid duplicate on initial mount + route change)
     if (
       typeof window !== "undefined" &&
-      window.fbq &&
+      typeof window.fbq === "function" &&
       pathname !== previousPathname.current
     ) {
       window.fbq("track", "PageView")
       previousPathname.current = pathname
     }
-  }, [pathname, searchParams])
+  }, [pathname])
 
   if (!pixelId) {
     return null
@@ -61,12 +61,13 @@ export function MetaPixel({ pixelId }: MetaPixelProps) {
         }}
       />
       <noscript>
-        <img
-          height="1"
-          width="1"
+        <Image
+          height={1}
+          width={1}
           style={{ display: "none" }}
           src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
           alt=""
+          unoptimized
         />
       </noscript>
     </>
@@ -76,10 +77,10 @@ export function MetaPixel({ pixelId }: MetaPixelProps) {
 // Helper function with performance optimization
 export function trackMetaPixelEvent(
   eventName: string,
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 ) {
   // Use requestIdleCallback if available for non-critical tracking
-  if (typeof window === "undefined" || !window.fbq) {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") {
     return
   }
 
@@ -110,9 +111,9 @@ export function trackMetaPixelEvent(
 // Helper function to track custom events (single pixel)
 export function trackMetaPixelCustomEvent(
   eventName: string,
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 ) {
-  if (typeof window === "undefined" || !window.fbq) {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") {
     return
   }
   

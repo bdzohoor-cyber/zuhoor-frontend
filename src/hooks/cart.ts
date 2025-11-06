@@ -143,7 +143,7 @@ export const useAddLineItem = (
     void,
     Error,
     { variantId: string; quantity: number; countryCode: string | undefined },
-    { previousCart: any; previousQuantity: number | undefined }
+    { previousCart: HttpTypes.StoreCart | null; previousQuantity: number | undefined }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -165,7 +165,7 @@ export const useAddLineItem = (
       await queryClient.cancelQueries({ queryKey: ["cart"] })
       
       // Snapshot previous values
-      const previousCart = queryClient.getQueryData(["cart"])
+      const previousCart = queryClient.getQueryData<HttpTypes.StoreCart>(["cart"]) ?? null
       const previousQuantity = queryClient.getQueryData<number>(["cart", "cart-quantity"])
       
       // Optimistically update cart quantity
@@ -205,7 +205,7 @@ export const useSetShippingMethod = (
     void,
     Error,
     { shippingMethodId: string },
-    { previousCart: any }
+    { previousCart: HttpTypes.StoreCart | null }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -222,10 +222,10 @@ export const useSetShippingMethod = (
     // Optimistic update
     onMutate: async ({ shippingMethodId }) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] })
-      const previousCart = queryClient.getQueryData(["cart"])
+      const previousCart = queryClient.getQueryData<HttpTypes.StoreCart>(["cart"]) ?? null
       
       // Optimistically update shipping method
-      queryClient.setQueryData(["cart"], (old: any) => {
+      queryClient.setQueryData(["cart"], (old: HttpTypes.StoreCart | null | undefined) => {
         if (!old) return old
         return {
           ...old,
@@ -302,7 +302,7 @@ export const useSetShippingAddress = (
     { success: boolean; error: string | null },
     Error,
     z.infer<typeof addressesFormSchema>,
-    { previousCart: any }
+    { previousCart: HttpTypes.StoreCart | null }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -316,10 +316,10 @@ export const useSetShippingAddress = (
     // Optimistic update
     onMutate: async (payload) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] })
-      const previousCart = queryClient.getQueryData(["cart"])
+      const previousCart = queryClient.getQueryData<HttpTypes.StoreCart>(["cart"]) ?? null
       
       // Optimistically update addresses
-      queryClient.setQueryData(["cart"], (old: any) => 
+      queryClient.setQueryData(["cart"], (old: HttpTypes.StoreCart | null | undefined) => 
         old ? {
           ...old,
           shipping_address: payload.shipping_address,
@@ -363,7 +363,7 @@ export const useSetEmail = (
     { success: boolean; error: string | null },
     Error,
     { email: string; country_code: string },
-    { previousCart: any }
+    { previousCart: HttpTypes.StoreCart | null }
   >
 ) => {
   const queryClient = useQueryClient()
@@ -377,10 +377,10 @@ export const useSetEmail = (
     // Optimistic update
     onMutate: async (payload) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] })
-      const previousCart = queryClient.getQueryData(["cart"])
+      const previousCart = queryClient.getQueryData<HttpTypes.StoreCart>(["cart"]) ?? null
       
       // Optimistically update cart email
-      queryClient.setQueryData(["cart"], (old: any) => 
+      queryClient.setQueryData(["cart"], (old: HttpTypes.StoreCart | null | undefined) => 
         old ? { ...old, email: payload.email } : old
       )
       

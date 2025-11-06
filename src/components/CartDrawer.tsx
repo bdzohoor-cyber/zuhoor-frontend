@@ -18,7 +18,6 @@ export const CartDrawer = withReactQueryProvider(() => {
 
   const { data: cart, isPending, refetch } = useCart({ 
     enabled: isCartDrawerOpen,
-    refetchOnWindowFocus: true,
   })
 
   const step = getCheckoutStep(cart as HttpTypes.StoreCart)

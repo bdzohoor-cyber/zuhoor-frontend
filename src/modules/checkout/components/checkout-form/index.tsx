@@ -35,7 +35,7 @@ export const CheckoutForm = withReactQueryProvider<{
       cart.items &&
       cart.items.length > 0 &&
       typeof window !== "undefined" &&
-      window.fbq
+      typeof window.fbq === "function"
     ) {
       try {
         trackMetaPixelEvent("InitiateCheckout", {
@@ -52,7 +52,7 @@ export const CheckoutForm = withReactQueryProvider<{
         }
       }
     }
-  }, [cart?.id]) // Only track once per cart session
+  }, [cart]) // Include cart in dependencies
   if (isPending) {
     return (
       <div className="absolute left-0 top-20 md:top-40 lg:top-0 w-[100vw] lg:max-w-[calc(100vw-((50vw-50%)+448px))] xl:max-w-[calc(100vw-((50vw-50%)+540px))] -ml-[calc(50vw-50%)] h-screen lg:w-full flex items-center justify-center">

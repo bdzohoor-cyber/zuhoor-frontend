@@ -10,7 +10,7 @@ type OrderPurchaseTrackingProps = {
 
 export function OrderPurchaseTracking({ order }: OrderPurchaseTrackingProps) {
   useEffect(() => {
-    if (!order || !order.items || typeof window === "undefined" || !window.fbq) {
+    if (!order || !order.items || typeof window === "undefined" || typeof window.fbq !== "function") {
       return
     }
 
@@ -33,7 +33,7 @@ export function OrderPurchaseTracking({ order }: OrderPurchaseTrackingProps) {
         console.warn("Meta Pixel tracking error:", error)
       }
     }
-  }, [order.id]) // Only track once per order
+  }, [order]) // Include order in dependencies
 
   return null
 }
