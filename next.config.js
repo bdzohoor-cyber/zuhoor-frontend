@@ -18,11 +18,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: "localhost",
+        hostname: "static.zuhoorlifestyle.store",
       },
       {
         protocol: "https",
-        hostname: "pub-98c037741f76433faaf51a949fda1a78.r2.dev",
+        hostname: "static.zuhoorlifestyle.store",
       },
     ],
   },
