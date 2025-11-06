@@ -1,4 +1,5 @@
 import * as React from "react"
+import Image from "next/image"
 import { listRegions } from "@lib/data/regions"
 import { listCategories } from "@lib/data/categories"
 import { SearchField } from "@/components/SearchField"
@@ -45,7 +46,16 @@ export const Header: React.FC = async () => {
           <LayoutColumn>
             <div className="flex justify-between items-center h-18 md:h-22">
               <h1 className="font-display font-normal text-lg tracking-tight">
-                <LocalizedLink href="/" className="hover:opacity-70 transition-opacity duration-200">Zuhoor</LocalizedLink>
+                <LocalizedLink href="/" className="hover:opacity-70 transition-opacity duration-200 inline-block">
+                  <Image 
+                    src="/images/content/logo.png" 
+                    alt="Zuhoor" 
+                    width={120} 
+                    height={40} 
+                    className="h-auto"
+                    priority
+                  />
+                </LocalizedLink>
               </h1>
               <div className="max-md:hidden">
                 <MegaMenu categories={categoryTree} allCategories={categoriesFlat} />
