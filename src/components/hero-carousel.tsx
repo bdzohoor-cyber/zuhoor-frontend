@@ -15,12 +15,20 @@ type Slide = {
 
 const HeroCarousel = () => {
   const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'
+  const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
   
   const { data, isLoading } = useQuery({
     queryKey: ['carousel-slides'],
     queryFn: async () => {
       try {
-        const res = await fetch(`${backendUrl}/store/custom/carousel`)
+        const headers: HeadersInit = {}
+        if (publishableKey) {
+          headers['x-publishable-api-key'] = publishableKey
+        }
+        
+        const res = await fetch(`${backendUrl}/store/custom/carousel`, {
+          headers
+        })
         // If response is not ok, return empty array instead of throwing
         if (!res.ok) {
           console.warn('Carousel API returned non-ok status:', res.status)
