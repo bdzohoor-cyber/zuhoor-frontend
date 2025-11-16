@@ -217,9 +217,7 @@ const Addresses = ({ cart }: { cart: StoreCart }) => {
                 .filter(Boolean)
                 .join(" ")}
               <br />
-              {[cart.shipping_address.postal_code, cart.shipping_address.city]
-                .filter(Boolean)
-                .join(" ")}
+              {cart.shipping_address.city}
               <br />
               {cart.shipping_address.country_code?.toUpperCase()}
               <br />
@@ -248,12 +246,7 @@ const Addresses = ({ cart }: { cart: StoreCart }) => {
                       .filter(Boolean)
                       .join(" ")}
                     <br />
-                    {[
-                      cart.billing_address?.postal_code,
-                      cart.billing_address?.city,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
+                    {cart.billing_address?.city}
                     <br />
                     {cart.billing_address?.country_code?.toUpperCase()}
                   </>

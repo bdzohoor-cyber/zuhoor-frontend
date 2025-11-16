@@ -21,7 +21,7 @@ export const OrderTotals: React.FC<{
           <p>Subtotal</p>
         </div>
         <div className="self-end">
-          <p>
+          <p className="font-price">
             {convertToLocale({
               currency_code: currency_code,
               amount: subtotal ?? 0,
@@ -35,7 +35,7 @@ export const OrderTotals: React.FC<{
             <p>Discount</p>
           </div>
           <div className="self-end">
-            <p>
+            <p className="font-price">
               -{" "}
               {convertToLocale({ amount: discount_total ?? 0, currency_code })}
             </p>
@@ -47,7 +47,7 @@ export const OrderTotals: React.FC<{
           <p>Shipping</p>
         </div>
         <div className="self-end">
-          <p>
+          <p className="font-price">
             {convertToLocale({
               currency_code: currency_code,
               amount: shipping_total ?? 0,
@@ -61,7 +61,7 @@ export const OrderTotals: React.FC<{
             <p>Gift card</p>
           </div>
           <div className="self-end">
-            <p>
+            <p className="font-price">
               -{" "}
               {convertToLocale({ amount: gift_card_total ?? 0, currency_code })}
             </p>
@@ -73,7 +73,7 @@ export const OrderTotals: React.FC<{
           <p>Total</p>
         </div>
         <div className="self-end">
-          <p>
+          <p className="font-price">
             {convertToLocale({
               currency_code: currency_code,
               amount: total ?? 0,
@@ -82,7 +82,7 @@ export const OrderTotals: React.FC<{
         </div>
       </div>
       <p className="text-xs text-grayscale-500">
-        Including {convertToLocale({ amount: tax_total ?? 0, currency_code })}{" "}
+        Including <span className="font-price">{convertToLocale({ amount: tax_total ?? 0, currency_code })}</span>{" "}
         tax
       </p>
     </div>

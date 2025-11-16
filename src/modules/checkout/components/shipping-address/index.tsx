@@ -185,12 +185,6 @@ const ShippingAddress = ({
               )}
               <div className="flex flex-wrap justify-between gap-6">
                 <div className="grow basis-0">
-                  <p className="text-xs text-grayscale-500 mb-1.5">
-                    Postal Code
-                  </p>
-                  <p>{formData.shipping_address.postal_code}</p>
-                </div>
-                <div className="grow basis-0">
                   <p className="text-xs text-grayscale-500 mb-1.5">City</p>
                   <p>{formData.shipping_address.city}</p>
                 </div>
@@ -332,18 +326,18 @@ const ShippingAddress = ({
             inputProps={{ autoComplete: "address-line1" }}
             data-testid="shipping-address-input"
           />
-          <InputField
+          {/* <InputField
             placeholder="Company"
             name="shipping_address.company"
             inputProps={{ autoComplete: "organization" }}
             data-testid="shipping-company-input"
-          />
-          <InputField
+          /> */}
+          {/* <InputField
             placeholder="Postal code"
             name="shipping_address.postal_code"
             inputProps={{ autoComplete: "postal-code" }}
             data-testid="shipping-postal-code-input"
-          />
+          /> */}
           <InputField
             placeholder="City"
             name="shipping_address.city"
@@ -367,12 +361,12 @@ const ShippingAddress = ({
             }}
             data-testid="shipping-country-select"
           />
-          <InputField
+          {/* <InputField
             placeholder="State / Province"
             name="shipping_address.province"
             inputProps={{ autoComplete: "address-level1" }}
             data-testid="shipping-province-input"
-          />
+          /> */}
           <InputField
             placeholder="Phone"
             name="shipping_address.phone"

@@ -28,7 +28,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
             <p>Subtotal</p>
           </div>
           <div className="self-end">
-            <p>{convertToLocale({ amount: subtotal ?? 0, currency_code })}</p>
+            <p className="font-price">{convertToLocale({ amount: subtotal ?? 0, currency_code })}</p>
           </div>
         </div>
         {!!discount_total && (
@@ -37,7 +37,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
               <p>Discount</p>
             </div>
             <div className="self-end">
-              <p>
+              <p className="font-price">
                 -{" "}
                 {convertToLocale({
                   amount: discount_total ?? 0,
@@ -52,7 +52,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
             <p>Shipping</p>
           </div>
           <div className="self-end">
-            <p>
+            <p className="font-price">
               {convertToLocale({ amount: shipping_total ?? 0, currency_code })}
             </p>
           </div>
@@ -62,7 +62,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
             <p>Taxes</p>
           </div>
           <div className="self-end">
-            <p>{convertToLocale({ amount: tax_total ?? 0, currency_code })}</p>
+            <p className="font-price">{convertToLocale({ amount: tax_total ?? 0, currency_code })}</p>
           </div>
         </div>
         {!!gift_card_total && (
@@ -71,7 +71,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
               <p>Gift card</p>
             </div>
             <div className="self-end">
-              <p>
+              <p className="font-price">
                 -{" "}
                 {convertToLocale({
                   amount: gift_card_total ?? 0,
@@ -87,7 +87,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ cart }) => {
           <p>Total</p>
         </div>
         <div className="self-end">
-          <p>{convertToLocale({ amount: total ?? 0, currency_code })}</p>
+          <p className="font-price">{convertToLocale({ amount: total ?? 0, currency_code })}</p>
         </div>
       </div>
       <div className="absolute h-full w-auto top-0 right-0 bg-black" />

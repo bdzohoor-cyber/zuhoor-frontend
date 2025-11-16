@@ -173,12 +173,6 @@ const BillingAddress = ({
               )}
               <div className="flex flex-wrap justify-between gap-6">
                 <div className="grow basis-0">
-                  <p className="text-xs text-grayscale-500 mb-1.5">
-                    Postal Code
-                  </p>
-                  <p>{formData.billing_address?.postal_code}</p>
-                </div>
-                <div className="grow basis-0">
                   <p className="text-xs text-grayscale-500 mb-1.5">City</p>
                   <p>{formData.billing_address?.city}</p>
                 </div>
@@ -327,22 +321,6 @@ const BillingAddress = ({
             data-testid="billing-address-input"
           />
           <InputField
-            placeholder="Company"
-            name="billing_address.company"
-            inputProps={{
-              autoComplete: "company",
-            }}
-            data-testid="billing-company-input"
-          />
-          <InputField
-            placeholder="Postal code"
-            name="billing_address.postal_code"
-            inputProps={{
-              autoComplete: "postal-code",
-            }}
-            data-testid="billing-postal-input"
-          />
-          <InputField
             placeholder="City"
             name="billing_address.city"
             inputProps={{
@@ -365,12 +343,6 @@ const BillingAddress = ({
                 }),
             }}
             data-testid="billing-country-select"
-          />
-          <InputField
-            placeholder="State / Province"
-            name="billing_address.province"
-            inputProps={{ autoComplete: "address-level1" }}
-            data-testid="billing-province-input"
           />
           <InputField
             placeholder="Phone"

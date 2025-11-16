@@ -198,6 +198,17 @@ module.exports = {
           "Arial",
           "sans-serif",
         ],
+        // Monospace font for prices - highly readable for numbers
+        price: [
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "Liberation Mono",
+          "Courier New",
+          "monospace",
+        ],
       },
       transitionProperty: {
         fontWeight: "font-weight",

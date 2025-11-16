@@ -26,10 +26,10 @@ export default function ProductPrice({
   if (hasReducedPrice && variant) {
     return (
       <div>
-        <p className="text-sm mb-1 text-grayscale-500 line-through">
+        <p className="text-sm mb-1 text-grayscale-500 line-through font-price">
           {selectedPrice.original_price}
         </p>
-        <p className="text-md mb-8 text-red-primary">
+        <p className="text-md mb-8 text-red-primary font-price">
           {selectedPrice.calculated_price}
         </p>
       </div>
@@ -38,7 +38,7 @@ export default function ProductPrice({
 
   return (
     <>
-      <p className="text-md mb-8">
+      <p className="text-md mb-8 font-price">
         {!variant && "From "}
         {selectedPrice.calculated_price}
       </p>
