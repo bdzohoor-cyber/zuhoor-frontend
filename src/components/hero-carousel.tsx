@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
 import Image from "next/image"
 import { useQuery } from "@tanstack/react-query"
+import { withReactQueryProvider } from "@lib/util/react-query"
 
 type Slide = {
   id: string
@@ -112,4 +113,4 @@ const HeroCarousel = () => {
   )
 }
 
-export default HeroCarousel
+export default withReactQueryProvider(HeroCarousel)
