@@ -19,12 +19,24 @@ const HeroCarousel = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['carousel-slides'],
     queryFn: async () => {
-      const res = await fetch(`${backendUrl}/store/custom/carousel`)
-      if (!res.ok) throw new Error('Failed to fetch carousel')
-      return res.json()
+      try {
+        const res = await fetch(`${backendUrl}/store/custom/carousel`)
+        // If response is not ok, return empty array instead of throwing
+        if (!res.ok) {
+          console.warn('Carousel API returned non-ok status:', res.status)
+          return { slides: [] }
+        }
+        const data = await res.json()
+        // Ensure we always return the expected format
+        return data?.slides ? { slides: data.slides } : { slides: [] }
+      } catch (error) {
+        console.warn('Carousel API error:', error)
+        // Return empty array on any error - will use placeholderData
+        return { slides: [] }
+      }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes cache
-    retry: 2,
+    retry: 1, // Only retry once
     // Fallback to static images if API fails
     placeholderData: {
       slides: [
@@ -78,9 +90,42 @@ const HeroCarousel = () => {
   // If error, placeholderData will be used automatically by react-query
   const slides: Slide[] = data?.slides || []
 
+  // If no slides from API, use placeholder data (static images)
   if (slides.length === 0) {
-    // Fallback: show nothing or a placeholder
-    return null
+    const fallbackSlides: Slide[] = [
+      { id: '1', image_url: '/images/content/banner.jpeg', alt_text: 'Elegant Style', order: 0 },
+      { id: '2', image_url: '/images/content/men-category.jpg', alt_text: 'Fashion Collection', order: 1 },
+      { id: '3', image_url: '/images/content/women-category.jpg', alt_text: "Women's Collection", order: 2 },
+    ]
+    // Use fallback slides
+    return (
+      <div className="relative w-full h-full">
+        <div 
+          className="relative w-full h-full overflow-hidden"
+          ref={emblaRef}
+        >
+          <div className="flex h-full">
+            {fallbackSlides.map((slide) => (
+              <div 
+                key={slide.id} 
+                className="relative min-w-full h-full flex-shrink-0"
+              >
+                <Image
+                  src={slide.image_url} 
+                  fill 
+                  alt={slide.alt_text}
+                  priority={slide.order === 0}
+                  quality={95}
+                  sizes="100vw"
+                  className="object-cover object-center select-none"
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
