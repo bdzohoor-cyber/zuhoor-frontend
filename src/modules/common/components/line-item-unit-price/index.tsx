@@ -26,15 +26,15 @@ const LineItemUnitPrice = ({
     <div className={className}>
       {hasReducedPrice ? (
         <>
-          <p className="text-base sm:text-sm font-semibold text-red-primary font-price">
+          <p className="text-sm sm:text-base font-semibold text-red-primary font-price">
             {calculated_price}
           </p>
-          <p className="text-grayscale-500 line-through font-price">{original_price}</p>
+          <p className="text-grayscale-500 line-through text-xs sm:text-sm font-price">{original_price}</p>
         </>
       ) : (
         <p
           className={twMerge(
-            "text-xs sm:text-sm font-semibold font-price",
+            "text-sm sm:text-base font-semibold font-price",
             regularPriceClassName
           )}
         >

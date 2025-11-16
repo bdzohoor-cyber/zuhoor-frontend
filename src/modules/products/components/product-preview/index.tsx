@@ -234,7 +234,7 @@ function ProductPreview({
             {cheapestPrice ? (
               hasReducedPrice ? (
                 <div className="text-right flex-shrink-0 ml-3">
-                  <p className="font-semibold text-base md:text-base text-red-600 leading-snug font-price">
+                  <p className="font-semibold text-sm md:text-base text-red-600 leading-snug font-price">
                     {cheapestPrice.calculated_price}
                   </p>
                   <p className="text-grayscale-400 line-through text-xs md:text-sm leading-tight mt-0.5 font-light font-price">
@@ -243,7 +243,7 @@ function ProductPreview({
                 </div>
               ) : (
                 <div className="text-right flex-shrink-0 ml-3">
-                  <p className="font-semibold text-base md:text-base leading-snug font-price">
+                  <p className="font-semibold text-sm md:text-base leading-snug font-price">
                     {cheapestPrice.calculated_price}
                   </p>
                 </div>

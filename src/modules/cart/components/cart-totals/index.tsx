@@ -38,7 +38,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
         <div className="flex justify-between">
           <p className="text-grayscale-500">Subtotal:</p>
           <p
-            className="self-end"
+            className="self-end font-price"
             data-testid="cart-subtotal"
             data-value={subtotal || 0}
           >
@@ -49,7 +49,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
           <div className="flex justify-between">
             <p className="text-grayscale-500">Discount:</p>
             <p
-              className="self-end"
+              className="self-end font-price"
               data-testid="cart-discount"
               data-value={discount_total || 0}
             >
@@ -61,7 +61,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
         <div className="flex justify-between">
           <p className="text-grayscale-500">Shipping:</p>
           <p
-            className="self-end"
+            className="self-end font-price"
             data-testid="cart-shipping"
             data-value={shipping_total || 0}
           >
@@ -71,7 +71,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
         <div className="flex justify-between">
           <p className="text-grayscale-500">Taxes:</p>
           <p
-            className="self-end"
+            className="self-end font-price"
             data-testid="cart-taxes"
             data-value={tax_total || 0}
           >
@@ -82,7 +82,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
           <div className="flex justify-between">
             <p className="text-grayscale-500">Gift card:</p>
             <p
-              className="self-end"
+              className="self-end font-price"
               data-testid="cart-gift-card-amount"
               data-value={gift_card_total || 0}
             >
@@ -100,7 +100,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
       />
       <div className="flex justify-between text-md font-semibold">
         <p>Total:</p>
-        <p data-testid="cart-total" data-value={total || 0}>
+        <p className="font-price" data-testid="cart-total" data-value={total || 0}>
           {convertToLocale({ amount: total ?? 0, currency_code })}
         </p>
       </div>

@@ -51,7 +51,7 @@ const Item = ({ item, className }: ItemProps) => {
             </div>
             <LineItemUnitPrice
               item={item}
-              regularPriceClassName="text-base sm:text-md font-normal"
+              regularPriceClassName="text-sm sm:text-base font-semibold"
             />
           </div>
         </div>
