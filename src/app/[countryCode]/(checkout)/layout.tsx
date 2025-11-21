@@ -45,7 +45,7 @@ export default function CheckoutLayout({
               href="/"
               className="text-md font-display font-normal mb-16 inline-block max-lg:hidden"
             >
-              Zuhoor Lifestyle
+              Zuhoor
             </LocalizedLink>
             {children}
           </div>
